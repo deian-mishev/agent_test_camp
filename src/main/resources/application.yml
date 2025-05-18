@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: agent-test-camp
+  ai:
+    openai:
+      api-key: ${MODEL_API_KEY}
+    chat:
+      options:
+        model: ${MODEL_NAME}
