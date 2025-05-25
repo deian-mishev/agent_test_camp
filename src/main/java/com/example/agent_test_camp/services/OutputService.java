@@ -18,57 +18,72 @@ import java.util.Objects;
 @Service
 public class OutputService {
 
-  private final StTemplateRenderer renderer;
   private final ChatClient chatClient;
+  private final PromptTemplate respondWithJSONTemplate;
+  private final PromptTemplate respondWithListTemplate;
+  private final PromptTemplate respondPlainTemplate;
 
   public OutputService(ChatClient.Builder chatClientBuilder) {
-    this.renderer =
+    final StTemplateRenderer renderer =
         StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build();
     this.chatClient =
         chatClientBuilder
             .defaultSystem(
                 """
-                       You are a helpful cooking assistant. Respond clearly and include recipes when relevant.
+                       You are a helpful cooking assistant.
+                       Respond clearly and include recipes when relevant.
                        If somebody ask about something else, just say you don't know.
                 """)
+            .build();
+    this.respondWithJSONTemplate =
+        PromptTemplate.builder()
+            .renderer(renderer)
+            .template(
+                """
+                    You are a helpful cooking assistant.
+                    Given the following ingredients: {ingredients}
+                    Suggest {amount} dishes I could make. Include the dish name, country of origin
+                    and the number of calories in the dish. Just say "I don't know" if you don't know
+                    the answer. Respond in this format: {format}
+                    """)
+            .build();
+    this.respondWithListTemplate =
+        PromptTemplate.builder()
+            .renderer(renderer)
+            .template(
+                """
+                You are a helpful cooking assistant.
+                Given the following ingredients: {ingredients}
+                Suggest a list of {amount} dishes I could make. Respond in this format: {format}
+                """)
+            .build();
+    this.respondPlainTemplate =
+        PromptTemplate.builder()
+            .renderer(renderer)
+            .template(
+                """
+                    Given the following ingredients: {ingredients}
+                    Suggest a recipe.
+                    """)
             .build();
   }
 
   public List<String> respondWithList(String ingredients, Integer amount) {
     final ListOutputConverter listOutputConverter =
         new ListOutputConverter(new DefaultConversionService());
-    final String promptText =
-        """
-                Given the following ingredients: {ingredients}
-                Suggest a list of {amount} dishes I could make. Respond in this format: {format}
-                """;
-
     final String prompt =
-        PromptTemplate.builder()
-            .renderer(renderer)
-            .template(promptText)
-            .build()
-            .render(
-                Map.of(
-                    "ingredients", ingredients,
-                    "amount", amount,
-                    "format", listOutputConverter.getFormat()));
+        respondWithListTemplate.render(
+            Map.of(
+                "ingredients", ingredients,
+                "amount", amount,
+                "format", listOutputConverter.getFormat()));
 
     return listOutputConverter.convert(
         Objects.requireNonNull(chatClient.prompt(prompt).call().content()));
   }
 
   public Object respondPlain(String ingredients) {
-    final String prompt =
-        PromptTemplate.builder()
-            .renderer(renderer)
-            .template(
-                """
-                Given the following ingredients: {ingredients}
-                Suggest a recipe.
-                """)
-            .build()
-            .render(Map.of("ingredients", ingredients));
+    final String prompt = respondPlainTemplate.render(Map.of("ingredients", ingredients));
     return this.chatClient.prompt(prompt).call().content();
   }
 
@@ -77,21 +92,11 @@ public class OutputService {
     final BeanOutputConverter<List<Recipe>> beanOutputConverter =
         new BeanOutputConverter<>(typeReference);
     final String prompt =
-        PromptTemplate.builder()
-            .renderer(renderer)
-            .template(
-                """
-                Given the following ingredients: {ingredients}
-                Suggest {amount} dishes I could make. Include the dish name, country of origin
-                and the number of calories in the dish. Just say "I don't know" if you don't know
-                the answer. {format}
-                """)
-            .build()
-            .render(
-                Map.of(
-                    "ingredients", ingredients,
-                    "amount", amount,
-                    "format", beanOutputConverter.getFormat()));
+        respondWithJSONTemplate.render(
+            Map.of(
+                "ingredients", ingredients,
+                "amount", amount,
+                "format", beanOutputConverter.getFormat()));
     return beanOutputConverter.convert(
         Objects.requireNonNull(chatClient.prompt(prompt).call().content()));
   }
