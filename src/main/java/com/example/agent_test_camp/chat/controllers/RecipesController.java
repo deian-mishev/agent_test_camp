@@ -1,7 +1,7 @@
-package com.example.agent_test_camp.controllers;
+package com.example.agent_test_camp.chat.controllers;
 
-import com.example.agent_test_camp.output.OUTPUT_TYPE;
-import com.example.agent_test_camp.services.OutputService;
+import com.example.agent_test_camp.chat.output.OUTPUT_TYPE;
+import com.example.agent_test_camp.chat.services.RecipesOutput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/recipes")
 public class RecipesController {
 
-    private final OutputService outputService;
+    private final RecipesOutput recipesOutput;
 
-    public RecipesController(OutputService outputService) {
-        this.outputService = outputService;
+    public RecipesController(RecipesOutput recipesOutput) {
+        this.recipesOutput = recipesOutput;
     }
 
     @GetMapping("/suggest-recipe")
@@ -30,9 +30,9 @@ public class RecipesController {
         }
         return ResponseEntity.ok(
                 switch (outputType) {
-                    case JSON -> outputService.respondWithJSON(ingredients, amount);
-                    case LIST -> outputService.respondWithList(ingredients, amount);
-                    default -> outputService.respondPlain(ingredients);
+                    case JSON -> recipesOutput.respondWithJSON(ingredients, amount);
+                    case LIST -> recipesOutput.respondWithList(ingredients, amount);
+                    default -> recipesOutput.respondPlain(ingredients);
                 }
         );
     }

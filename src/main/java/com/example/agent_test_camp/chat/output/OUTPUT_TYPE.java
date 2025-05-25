@@ -1,4 +1,4 @@
-package com.example.agent_test_camp.output;
+package com.example.agent_test_camp.chat.output;
 
 public enum OUTPUT_TYPE {
     PLAIN,

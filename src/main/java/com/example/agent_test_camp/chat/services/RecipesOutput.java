@@ -1,7 +1,6 @@
-package com.example.agent_test_camp.services;
+package com.example.agent_test_camp.chat.services;
 
-import com.example.agent_test_camp.output.Recipe;
-import org.springframework.ai.chat.client.ChatClient;
+import com.example.agent_test_camp.chat.output.Recipe;
 
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;
@@ -16,25 +15,18 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
-public class OutputService {
+public class RecipesOutput {
 
-  private final ChatClient chatClient;
+  private final RecipesChatClient recipesChatClient;
   private final PromptTemplate respondWithJSONTemplate;
   private final PromptTemplate respondWithListTemplate;
   private final PromptTemplate respondPlainTemplate;
 
-  public OutputService(ChatClient.Builder chatClientBuilder) {
+  public RecipesOutput(RecipesChatClient recipesChatClient) {
+    this.recipesChatClient = recipesChatClient;
     final StTemplateRenderer renderer =
         StTemplateRenderer.builder().startDelimiterToken('{').endDelimiterToken('}').build();
-    this.chatClient =
-        chatClientBuilder
-            .defaultSystem(
-                """
-                       You are a helpful cooking assistant.
-                       Respond clearly and include recipes when relevant.
-                       If somebody ask about something else, just say you don't know.
-                """)
-            .build();
+
     this.respondWithJSONTemplate =
         PromptTemplate.builder()
             .renderer(renderer)
@@ -79,12 +71,12 @@ public class OutputService {
                 "format", listOutputConverter.getFormat()));
 
     return listOutputConverter.convert(
-        Objects.requireNonNull(chatClient.prompt(prompt).call().content()));
+        Objects.requireNonNull(recipesChatClient.getResponse(prompt)));
   }
 
   public Object respondPlain(String ingredients) {
     final String prompt = respondPlainTemplate.render(Map.of("ingredients", ingredients));
-    return this.chatClient.prompt(prompt).call().content();
+    return recipesChatClient.getResponse(prompt);
   }
 
   public Object respondWithJSON(String ingredients, Integer amount) {
@@ -98,6 +90,6 @@ public class OutputService {
                 "amount", amount,
                 "format", beanOutputConverter.getFormat()));
     return beanOutputConverter.convert(
-        Objects.requireNonNull(chatClient.prompt(prompt).call().content()));
+        Objects.requireNonNull(recipesChatClient.getResponse(prompt)));
   }
 }

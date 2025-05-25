@@ -4,6 +4,10 @@ spring:
   ai:
     openai:
       api-key: ${MODEL_API_KEY}
-    chat:
-      options:
-        model: ${MODEL_NAME}
+      chat:
+        options:
+          model: ${CHAT_MODEL_NAME}
+      image:
+        options:
+          size: 256x256
+          model: ${IMAGE_MODEL_NAME}
