@@ -9,5 +9,9 @@ spring:
           model: ${CHAT_MODEL_NAME}
       image:
         options:
-          size: 256x256
           model: ${IMAGE_MODEL_NAME}
+project:
+  properties:
+    images:
+      allowed-sizes: ${IMAGE_ALLOWED_SIZES}
+      uniform-size: ${IMAGE_SIZE_UNIFORM}
