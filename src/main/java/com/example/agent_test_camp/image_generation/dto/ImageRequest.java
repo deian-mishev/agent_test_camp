@@ -1,4 +1,4 @@
-package com.example.agent_test_camp.image_generation.input;
+package com.example.agent_test_camp.image_generation.dto;
 
 import com.example.agent_test_camp.image_generation.validation.ValidImageRequest;
 import com.example.agent_test_camp.image_generation.validation.ValidImageSize;

@@ -1,6 +1,6 @@
-package com.example.agent_test_camp.chat.services;
+package com.example.agent_test_camp.recipes_chat.services;
 
-import com.example.agent_test_camp.chat.output.Recipe;
+import com.example.agent_test_camp.recipes_chat.dto.Recipe;
 
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.converter.BeanOutputConverter;

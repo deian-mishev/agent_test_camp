@@ -3,7 +3,7 @@ import com.example.agent_test_camp.image_generation.configuration.ImagePropertie
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import com.example.agent_test_camp.image_generation.input.ImageRequest;
+import com.example.agent_test_camp.image_generation.dto.ImageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UniformSizeValidator implements ConstraintValidator<ValidImageRequest, ImageRequest> {

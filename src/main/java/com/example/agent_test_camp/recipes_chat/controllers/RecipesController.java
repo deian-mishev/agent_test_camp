@@ -1,7 +1,7 @@
-package com.example.agent_test_camp.chat.controllers;
+package com.example.agent_test_camp.recipes_chat.controllers;
 
-import com.example.agent_test_camp.chat.output.OUTPUT_TYPE;
-import com.example.agent_test_camp.chat.services.RecipesOutput;
+import com.example.agent_test_camp.recipes_chat.enums.OUTPUT_TYPE;
+import com.example.agent_test_camp.recipes_chat.services.RecipesOutput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

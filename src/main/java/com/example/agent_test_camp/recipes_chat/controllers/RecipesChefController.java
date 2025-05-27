@@ -1,6 +1,6 @@
-package com.example.agent_test_camp.chat.controllers;
+package com.example.agent_test_camp.recipes_chat.controllers;
 
-import com.example.agent_test_camp.chat.services.RecipesChatClient;
+import com.example.agent_test_camp.recipes_chat.services.RecipesChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;

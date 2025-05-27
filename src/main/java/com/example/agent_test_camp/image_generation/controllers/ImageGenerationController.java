@@ -1,6 +1,6 @@
 package com.example.agent_test_camp.image_generation.controllers;
 
-import com.example.agent_test_camp.image_generation.input.ImageRequest;
+import com.example.agent_test_camp.image_generation.dto.ImageRequest;
 import com.example.agent_test_camp.image_generation.services.ImageGeneration;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

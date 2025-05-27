@@ -1,4 +1,4 @@
-package com.example.agent_test_camp.chat.services;
+package com.example.agent_test_camp.recipes_chat.services;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
