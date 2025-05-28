@@ -1,5 +1,6 @@
-package com.example.agent_test_camp.image_generation.validation;
+package com.example.agent_test_camp.config;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
+@Profile({"image_generation", "loan_chat", "recipes_chat"})
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

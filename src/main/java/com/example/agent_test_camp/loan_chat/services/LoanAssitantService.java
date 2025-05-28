@@ -44,7 +44,7 @@ public class LoanAssitantService {
     return this.chatClient
         .prompt()
         .user(userMessageContent)
-        .advisors(a -> a.param(CONVERSATION_ID, chatId).param(TOP_K, 100))
+        .advisors(a -> a.param(CONVERSATION_ID, chatId).param(TOP_K, 1))
             .call().content();
   }
 }
