@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-@Profile({"image_generation", "loan_chat", "recipes_chat"})
+@Profile({"image_generation", "loan_chat", "recipes_chat", "translator"})
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

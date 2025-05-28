@@ -1,20 +1,11 @@
 spring:
+  autoconfigure:
+    exclude:
+      - com.zaxxer.hikari.pool.HikariDataSource
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
   application:
     name: agent-test-camp
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: ""
   ai:
     openai:
       api-key: ${MODEL_API_KEY}
@@ -24,6 +15,17 @@ spring:
       image:
         options:
           model: ${IMAGE_MODEL_NAME}
+      audio:
+        transcription:
+          model: ${TRANSCRIPTION_MODEL_NAME}
+          response-format: json
+          temperature: 0.2
+        speech:
+          options:
+            model: ${SPEECH_MODEL_NAME}
+            voice: alloy
+            response-format: wav
+            speed: 1
 project:
   properties:
     images:
