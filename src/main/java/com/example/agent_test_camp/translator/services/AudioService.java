@@ -29,7 +29,7 @@ public class AudioService {
   @Async
   public CompletableFuture<String> recordAndTranscript(int maxDurationInSeconds) {
     if (recording) {
-      return CompletableFuture.completedFuture("Another recording in progress");
+      return CompletableFuture.failedFuture(new RuntimeException("Another recording in progress"));
     }
 
     recording = true;
@@ -37,7 +37,7 @@ public class AudioService {
       DataLine.Info info = new DataLine.Info(TargetDataLine.class, AUDIO_FORMAT);
       if (!AudioSystem.isLineSupported(info)) {
         recording = false;
-        return CompletableFuture.completedFuture("No audio system connected");
+        return CompletableFuture.failedFuture(new RuntimeException("No audio system connected"));
       }
 
       line = (TargetDataLine) AudioSystem.getLine(info);
