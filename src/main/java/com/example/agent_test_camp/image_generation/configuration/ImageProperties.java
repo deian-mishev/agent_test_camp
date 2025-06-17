@@ -9,7 +9,25 @@ import java.util.Set;
 @ConfigurationProperties(prefix = "project.properties.images")
 public class ImageProperties {
   private Set<Integer> allowedSizes;
+  private Set<String> allowedQualities;
+  private Set<String> allowedStyles;
   private Boolean uniformSize;
+
+  public Set<String> getAllowedStyles() {
+    return allowedStyles;
+  }
+
+  public void setAllowedStyles(Set<String> allowedStyles) {
+    this.allowedStyles = allowedStyles;
+  }
+
+  public Set<String> getAllowedQualities() {
+    return allowedQualities;
+  }
+
+  public void setAllowedQualities(Set<String> allowedQualities) {
+    this.allowedQualities = allowedQualities;
+  }
 
   public Boolean getUniformSize() {
     return uniformSize;
@@ -26,4 +44,6 @@ public class ImageProperties {
   public void setAllowedSizes(Set<Integer> allowedSizes) {
     this.allowedSizes = allowedSizes;
   }
+  
+   
 }

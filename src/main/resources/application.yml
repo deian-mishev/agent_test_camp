@@ -31,3 +31,5 @@ project:
     images:
       allowed-sizes: ${IMAGE_ALLOWED_SIZES}
       uniform-size: ${IMAGE_SIZE_UNIFORM}
+      allowed-qualities: ${IMAGE_ALLOWED_QUALITIES}
+      allowed-styles: ${IMAGE_ALLOWED_STYLES}
