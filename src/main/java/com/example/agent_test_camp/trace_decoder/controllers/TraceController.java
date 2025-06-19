@@ -40,7 +40,7 @@ public class TraceController {
   }
 
   @PostMapping("/{id}/trace")
-  public ResponseEntity<TraceAnalyzesResponse> addTrace(
+  public ResponseEntity<String> addTrace(
       @PathVariable String id, @Valid @RequestBody TraceEntry trace) {
     return ResponseEntity.ok(traceAssistantService.analyzeTrace(id, trace));
   }

@@ -1,8 +1,6 @@
 package com.example.agent_test_camp.trace_decoder.domain;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
@@ -17,6 +15,9 @@ public class TraceEntry {
   @Field(type = FieldType.Keyword)
   @NotBlank(message = "Type must not be blank")
   private String type;
+
+  @Field(type = FieldType.Keyword)
+  private String message;
 
   @Field(type = FieldType.Keyword)
   private String callId;
@@ -44,6 +45,14 @@ public class TraceEntry {
 
   @Field(type = FieldType.Object)
   private List<Map<String, Object>> stack;
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
   public String getId() {
     return id;
@@ -135,36 +144,20 @@ public class TraceEntry {
 
   @Override
   public String toString() {
-    return "Trace{"
-        + "id='"
-        + id
-        + '\''
-        + ", type='"
-        + type
-        + '\''
-        + ", callId='"
-        + callId
-        + '\''
-        + ", parentId='"
-        + parentId
-        + '\''
-        + ", apiName='"
-        + apiName
-        + '\''
-        + ", method='"
-        + method
-        + '\''
-        + ", clazz='"
-        + clazz
-        + '\''
-        + ", startTime="
-        + startTime
-        + ", endTime="
-        + endTime
-        + ", params="
-        + params
-        + ", stack="
-        + stack
-        + '}';
+    return "TraceEntry{" +
+            "id='" + id + '\'' +
+            ", type='" + type + '\'' +
+            ", message='" + message + '\'' +
+            ", callId='" + callId + '\'' +
+            ", parentId='" + parentId + '\'' +
+            ", apiName='" + apiName + '\'' +
+            ", method='" + method + '\'' +
+            ", clazz='" + clazz + '\'' +
+            ", startTime=" + startTime +
+            ", endTime=" + endTime +
+            ", params=" + params +
+            ", stack=" + stack +
+            '}';
   }
+
 }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TestService {
@@ -38,15 +37,12 @@ public class TestService {
   }
 
   public List<TraceEntry> getTraceSteps(String id) {
-    return repo.findById(id).map(TraceTest::getTraceSteps).orElse(new ArrayList<>());
+    return repo.findById(id)
+            .map(TraceTest::getTraceSteps)
+            .orElse(new ArrayList<>());
   }
 
-  public Optional<TraceTest> getTraceTest(String id) {
-    return repo.findById(id);
-  }
-
-  public boolean saveTraceTest(TraceTest traceTest) {
-    TraceTest saved = repo.save(traceTest);
-    return saved != null && saved.getId() != null;
+  public boolean existsById(String id) {
+      return repo.existsById(id);
   }
 }

@@ -13,10 +13,10 @@ import static org.springframework.ai.chat.client.advisor.vectorstore.VectorStore
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
 @Service
-public class LoanAssitantService {
+public class LoanAssistantService {
   private final ChatClient chatClient;
 
-  public LoanAssitantService(
+  public LoanAssistantService(
       ChatClient.Builder modelBuilder,
       VectorStore vectorStore,
       ChatMemory chatMemory,

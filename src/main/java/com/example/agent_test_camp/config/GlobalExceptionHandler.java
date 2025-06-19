@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,15 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ExecutionException.class)
   public ResponseEntity<String> handleExecutionException(ExecutionException ex) {
     String errors = ex.getCause().getLocalizedMessage();
-    String body = "Validation failed: " + errors;
-    return ResponseEntity.badRequest().body(body);
+    return getExceptionFormat(errors);
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  public ResponseEntity<String> handleNotFound(NoSuchElementException ex) {
+    return getExceptionFormat(ex.getMessage());
+  }
+
+  private ResponseEntity<String> getExceptionFormat(String error) {
+    return ResponseEntity.badRequest().body("Validation failed: " + error);
   }
 }
