@@ -1,0 +1,7 @@
+spring:
+  elasticsearch:
+    uris: ${ES_URIS}
+    username: ${ES_USER}
+    password: ${ES_PASSWORD}
+docs:
+  path: ${DOCS_PATH}

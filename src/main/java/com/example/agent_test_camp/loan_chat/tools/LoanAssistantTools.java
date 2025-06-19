@@ -1,6 +1,5 @@
 package com.example.agent_test_camp.loan_chat.tools;
 
-import com.example.agent_test_camp.loan_chat.domain.Loan;
 import com.example.agent_test_camp.loan_chat.dto.CustomerDetailsDTO;
 import com.example.agent_test_camp.loan_chat.dto.LoanDetailsDTO;
 import com.example.agent_test_camp.loan_chat.services.CustomerLoanService;

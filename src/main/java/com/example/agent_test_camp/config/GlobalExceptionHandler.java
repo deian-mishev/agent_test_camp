@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-@Profile({"image_generation", "loan_chat", "recipes_chat", "translator"})
+@Profile({"image_generation", "loan_chat", "recipes_chat", "translator", "trace_decoder"})
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -30,10 +30,10 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(body);
   }
 
-    @ExceptionHandler(ExecutionException.class)
-    public ResponseEntity<String> handleExecutionException(ExecutionException ex) {
-        String errors = ex.getCause().getLocalizedMessage();
-        String body = "Validation failed: " + errors;
-        return ResponseEntity.badRequest().body(body);
-    }
+  @ExceptionHandler(ExecutionException.class)
+  public ResponseEntity<String> handleExecutionException(ExecutionException ex) {
+    String errors = ex.getCause().getLocalizedMessage();
+    String body = "Validation failed: " + errors;
+    return ResponseEntity.badRequest().body(body);
+  }
 }

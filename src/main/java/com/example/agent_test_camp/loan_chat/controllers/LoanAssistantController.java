@@ -1,4 +1,4 @@
-package com.example.agent_test_camp.loan_chat.cotrollers;
+package com.example.agent_test_camp.loan_chat.controllers;
 
 import com.example.agent_test_camp.loan_chat.dto.MessageDTO;
 import com.example.agent_test_camp.loan_chat.services.LoanAssitantService;
