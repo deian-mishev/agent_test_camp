@@ -1,10 +1,13 @@
 package com.example.agent_test_camp.trace_decoder.domain;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.time.Instant;
 import java.util.List;
 
 @Document(indexName = "test-traces")
@@ -30,8 +33,20 @@ public class TraceTest {
   @Field(type = FieldType.Nested)
   private List<TraceEntry> traceEntrySteps;
 
+  @CreatedDate
+  @Field(type = FieldType.Date, format = DateFormat.date_time)
+  private Instant createdAt = Instant.now();
+
   public String getId() {
     return id;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
   }
 
   public void setId(String id) {
@@ -88,14 +103,26 @@ public class TraceTest {
 
   @Override
   public String toString() {
-    return "Test{" +
-            "id='" + id + '\'' +
-            ", testName='" + testName + '\'' +
-            ", wallTime=" + wallTime +
-            ", platform='" + platform + '\'' +
-            ", browserName='" + browserName + '\'' +
-            ", sdkLanguage='" + sdkLanguage + '\'' +
-            ", traceSteps=" + traceEntrySteps +
-            '}';
+    return "Test{"
+        + "id='"
+        + id
+        + '\''
+        + ", testName='"
+        + testName
+        + '\''
+        + ", wallTime="
+        + wallTime
+        + ", platform='"
+        + platform
+        + '\''
+        + ", browserName='"
+        + browserName
+        + '\''
+        + ", sdkLanguage='"
+        + sdkLanguage
+        + '\''
+        + ", traceSteps="
+        + traceEntrySteps
+        + '}';
   }
 }

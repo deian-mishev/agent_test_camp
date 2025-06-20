@@ -15,8 +15,8 @@ public class LoanAssistantController {
 
   private final LoanAssistantService loanAssistantService;
 
-  public LoanAssistantController(LoanAssistantService lonAssistantService) {
-    this.loanAssistantService = lonAssistantService;
+  public LoanAssistantController(LoanAssistantService loanAssistantService) {
+    this.loanAssistantService = loanAssistantService;
   }
 
   @GetMapping

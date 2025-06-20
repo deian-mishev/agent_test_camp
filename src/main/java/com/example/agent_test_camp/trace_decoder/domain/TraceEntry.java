@@ -1,10 +1,13 @@
 package com.example.agent_test_camp.trace_decoder.domain;
 
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.List;
 
@@ -46,8 +49,20 @@ public class TraceEntry {
   @Field(type = FieldType.Object)
   private List<Map<String, Object>> stack;
 
+  @CreatedDate
+  @Field(type = FieldType.Date, format = DateFormat.date_time)
+  private Instant createdAt = Instant.now();
+
   public String getMessage() {
     return message;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
   }
 
   public void setMessage(String message) {

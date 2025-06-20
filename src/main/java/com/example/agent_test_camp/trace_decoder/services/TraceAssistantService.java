@@ -1,5 +1,6 @@
 package com.example.agent_test_camp.trace_decoder.services;
 
+import static com.example.agent_test_camp.trace_decoder.services.TestService.ERROR_CODE;
 import static org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor.TOP_K;
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
@@ -25,7 +26,6 @@ import java.util.NoSuchElementException;
 @Service
 public class TraceAssistantService {
 
-  private static final String ERROR = "error";
   private final TestService testService;
   private final ChatClient chatClient;
   private final PromptTemplate promptTemplate;
@@ -38,21 +38,16 @@ public class TraceAssistantService {
       TraceAssistantTools aiTools,
       TestService testService) {
     this.testService = testService;
-    ParameterizedTypeReference<TraceAnalyzesResponse> typeRef =
-        new ParameterizedTypeReference<TraceAnalyzesResponse>() {};
-    this.outputConverter = new BeanOutputConverter<>(typeRef);
     this.chatClient =
         modelBuilder
             .defaultSystem(
                 """
-                        You are a test trace assistant service.
-                        You translate failing traces into human-readable format.
-                        Use it whenever you need more context or suspect an error might be better understood with the full trace history.
-                        If you detect an error in the trace, call the `getTraceEntries` tool with the testId to get all trace entries of the test
-                        before responding in order to make a more knowledgeable analysis of the context of the error. If this error apears in more than
-                        once in the responses then say how many times it appears in the test.
-
-                        If someone asks about something else, say you don't know.
+                        You are a test trace analyze assistant. You translate traces from tests into human-readable format.
+                        You identify error traces according to the provided documentation which feature specific traces for the analysed system.
+                        If you detect an error in the trace, call the `getTraceEntries` tool with the 'testId' and in the response and use the response to
+                        better understand the cause of the error. If the `getTraceEntries` tool was called also always include the number of times
+                        a similar errors have occurred based on this tools response knowing these are the errors for the last hour for other test
+                        aka not the one currently running identified by 'testId'.
                         """)
             .defaultAdvisors(
                 MessageChatMemoryAdvisor.builder(chatMemory).build(),
@@ -75,7 +70,6 @@ public class TraceAssistantService {
                 You are a trace assistant. You receive a trace and must return a JSON object with:
                 - "response": a human-readable explanation of the trace
                 - "isError": true if there is an error/exception in the trace, false otherwise
-                If you detect an error in the trace, call the `getTraceEntries` tool with the testId to get all trace entries before responding.
 
                 Test ID:
                 {testId}
@@ -88,6 +82,9 @@ public class TraceAssistantService {
                 {format}
             """)
             .build();
+    ParameterizedTypeReference<TraceAnalyzesResponse> typeRef =
+        new ParameterizedTypeReference<TraceAnalyzesResponse>() {};
+    this.outputConverter = new BeanOutputConverter<>(typeRef);
     this.promptTemplate.add("format", outputConverter.getFormat());
   }
 
@@ -97,7 +94,8 @@ public class TraceAssistantService {
       throw new NoSuchElementException(String.format("Test with id '%s' does not exist", testId));
     }
 
-    if (!traceEntry.getType().equalsIgnoreCase(ERROR)) {
+    if (!traceEntry.getType().equalsIgnoreCase(ERROR_CODE)) {
+      testService.addTraceToTest(testId, traceEntry);
       return "Regular trace, nothing to analyze.";
     }
 
