@@ -1,0 +1,6 @@
+project:
+  properties:
+    agent:
+      url: ${AGENT_URL}
+      width: ${AGENT_VID_WIDTH}
+      height: ${AGENT_VID_HEIGHT}

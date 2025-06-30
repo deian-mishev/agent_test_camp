@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        img {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Agent Test Camp</h1>
+
+<img id="video"
+     th:attr="width=${width}, height=${height}" />
+
+<script th:inline="javascript">
+    const socket = new SockJS('/ws/agent');
+    const stompClient = Stomp.over(socket);
+    const vid = document.getElementById('video');
+
+    stompClient.connect({}, function () {
+        console.log('Connected');
+
+        // Subscribe to video frames
+        stompClient.subscribe('/topic/frame', function (frameData) {
+            const frame = JSON.parse(frameData.body).base64Frame;
+            vid.src = 'data:image/png;base64,' + frame;
+        });
+
+        // Send arrow keys
+        document.addEventListener("keydown", (e) => {
+            const payload = JSON.stringify({ key: e.key });
+            stompClient.send("/app/input", {}, payload);
+        });
+    });
+</script>
+
+</body>
+</html>
