@@ -1,43 +1,100 @@
 package com.example.agent_test_camp.ml_agent_interact.controllers;
 
-import com.example.agent_test_camp.ml_agent_interact.configuration.AgentProperties;
-import com.example.agent_test_camp.ml_agent_interact.dto.FrameResponse;
-import com.example.agent_test_camp.ml_agent_interact.dto.InputAction;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.example.agent_test_camp.ml_agent_interact.configuration.ProjectProperties;
+import com.example.agent_test_camp.ml_agent_interact.services.FlaskSocketIOClient;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.Base64;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Validated
 @Controller
 public class AgentController {
 
-    private final AgentProperties agentProperties;
+  private final ProjectProperties projectProperties;
+  private final SimpMessagingTemplate messagingTemplate;
+  private final Map<String, FlaskSocketIOClient> clientMap = new ConcurrentHashMap<>();
 
-    public AgentController(AgentProperties agentProperties) {
-        this.agentProperties = agentProperties;
+  public AgentController(
+      ProjectProperties projectProperties, SimpMessagingTemplate messagingTemplate) {
+    this.projectProperties = projectProperties;
+    this.messagingTemplate = messagingTemplate;
+  }
+
+  @Async
+  @MessageMapping("/input")
+  public CompletableFuture<String> handleInput(
+      Principal principal,
+      @Header("simpSessionId") String simpSessionId,
+      @NotEmpty(message = "Keys must not be empty")
+          List<@NotBlank(message = "Each key must not be blank") String> keys) {
+
+    FlaskSocketIOClient socketIOClient =
+        clientMap.computeIfAbsent(
+            simpSessionId,
+            key -> {
+              String name = principal.getName();
+              System.out.println("Creating and connecting new FlaskSocketIOClient for: " + name);
+
+              FlaskSocketIOClient newClient =
+                  new FlaskSocketIOClient(
+                      base64Image ->
+                          messagingTemplate.convertAndSendToUser(name, "/queue/frame", base64Image),
+                      endMessage -> {
+                        messagingTemplate.convertAndSendToUser(
+                            name, "/queue/episode_end", endMessage);
+                        FlaskSocketIOClient removed = clientMap.remove(key);
+                        if (removed != null) {
+                          removed.disconnect();
+                        }
+                      },
+                      projectProperties.getAgent());
+
+              try {
+                newClient.connect();
+              } catch (URISyntaxException e) {
+                e.printStackTrace();
+                return null; // don't store failed connection
+              }
+
+              return newClient;
+            });
+
+    if (socketIOClient != null && socketIOClient.isConnected()) {
+      socketIOClient.sendInput(keys);
     }
 
-    @MessageMapping("/input")
-    @SendTo("/topic/frame")
-    public FrameResponse handleInput(InputAction message) throws Exception {
-        String keyInput = message.getKey();
-        byte[] videoData = sendKeyToAgent(keyInput);
-        String base64 = Base64.getEncoder().encodeToString(videoData);
-        return new FrameResponse(base64);
-    }
+    return CompletableFuture.completedFuture("");
+  }
 
-    private byte[] sendKeyToAgent(String keyInput) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(keyInput, headers);
-        ResponseEntity<byte[]> response = new RestTemplate().postForEntity(agentProperties.getUrl()
-                , entity, byte[].class);
-        return response.getBody();
+  @EventListener
+  public void handleSessionDisconnect(SessionDisconnectEvent event) {
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+    String sessionId = accessor.getSessionId();
+
+    System.out.println("Session disconnected: " + sessionId);
+
+    FlaskSocketIOClient client = clientMap.remove(sessionId);
+    if (client != null) {
+      client.disconnect();
+      System.out.println("Cleaned up FlaskSocketIOClient for session: " + sessionId);
+    } else {
+      System.out.println("No client to clean up for session: " + sessionId);
     }
+  }
 }

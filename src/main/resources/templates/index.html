@@ -30,7 +30,7 @@
 </head>
 <body>
 
-<h1>Agent Test Camp</h1>
+<h1 id="title">Agent Test Camp</h1>
 
 <img id="video"
      th:attr="width=${width}, height=${height}" />
@@ -39,22 +39,64 @@
     const socket = new SockJS('/ws/agent');
     const stompClient = Stomp.over(socket);
     const vid = document.getElementById('video');
+    const pressedKeys = new Set();
+    stompClient.debug = null;
+    let isDisconnected = false;
+    function handleKeydown(e) {
+        console.log(e)
+        pressedKeys.add(e.key);
+    }
+
+    function handleKeyup(e) {
+        pressedKeys.delete(e.key);
+    }
+
+    let lastSendTime = 0;
+    const SEND_INTERVAL_MS = 50;
+
+    function gameLoop(timestamp) {
+        if (timestamp - lastSendTime >= SEND_INTERVAL_MS) {
+            if (pressedKeys.size > 0) {
+                const payload = JSON.stringify(Array.from(pressedKeys));
+                stompClient.send("/app/input", {}, payload);
+            }
+            lastSendTime = timestamp;
+        }
+
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    function cleanup() {
+        if (isDisconnected) return;
+        isDisconnected = true;
+
+        document.removeEventListener("keydown", handleKeydown);
+        document.removeEventListener("keyup", handleKeyup);
+        cancelAnimationFrame(animationFrameId);
+        stompClient.disconnect(() => {
+            console.log("STOMP client disconnected");
+        });
+
+        document.getElementById('title').textContent = "Episode ended";
+    }
 
     stompClient.connect({}, function () {
-        console.log('Connected');
+        console.log('connected');
 
-        // Subscribe to video frames
-        stompClient.subscribe('/topic/frame', function (frameData) {
-            const frame = JSON.parse(frameData.body).base64Frame;
-            vid.src = 'data:image/png;base64,' + frame;
+        stompClient.subscribe('/user/queue/frame', function (base64Frame) {
+            vid.src = 'data:image/png;base64,' + base64Frame.body;
         });
 
-        // Send arrow keys
-        document.addEventListener("keydown", (e) => {
-            const payload = JSON.stringify({ key: e.key });
-            stompClient.send("/app/input", {}, payload);
+        stompClient.subscribe('/user/queue/episode_end', function (message) {
+            cleanup();
         });
+
+        document.addEventListener("keydown", handleKeydown);
+        document.addEventListener("keyup", handleKeyup);
+        requestAnimationFrame(gameLoop);
     });
+
+    window.addEventListener("beforeunload", cleanup);
 </script>
 
 </body>

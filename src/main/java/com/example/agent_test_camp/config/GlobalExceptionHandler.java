@@ -11,7 +11,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-@Profile({"image_generation", "loan_chat", "recipes_chat", "translator", "trace_decoder"})
+@Profile({
+  "image_generation",
+  "loan_chat",
+  "recipes_chat",
+  "translator",
+  "trace_decoder",
+  "ml_agent_interact"
+})
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
