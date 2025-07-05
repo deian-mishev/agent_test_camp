@@ -4,6 +4,7 @@ const title = document.getElementById('title');
 const envSelect = document.getElementById('envSelect');
 const playerSelect = document.getElementById('playerSelect');
 const startBtn = document.getElementById('startBtn');
+const screen_container = document.getElementById('screen-container');
 let isConnected = false;
 let stompClient = null;
 let socket = null;
@@ -50,6 +51,7 @@ function cleanup() {
     stompClient = null;
     socket = null;
     title.textContent = "Episode ended, play again ..";
+    screen_container.style.display = 'flex';
 
     checkEnableStart();
 }
@@ -91,7 +93,8 @@ startBtn.addEventListener("click", () => {
     stompClient.connect(
         { env: environment, ai_player: ai_player },
         () => {
-            title.textContent = "Agent Test Camp";
+            title.textContent = "Agent Playground";
+            screen_container.style.display = 'none';
             console.log("connected");
             isConnected = true;
             checkEnableStart();

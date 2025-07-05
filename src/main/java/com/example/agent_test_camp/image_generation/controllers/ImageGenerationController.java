@@ -5,11 +5,13 @@ import com.example.agent_test_camp.image_generation.services.ImageGeneration;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.ai.image.ImageResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/images")
@@ -22,7 +24,7 @@ public class ImageGenerationController {
   }
 
   @GetMapping("/generate")
-  public void generateImage(
+  public void  generateImage(
           HttpServletResponse response,
           @Valid ImageRequest imageRequest
           ) throws IOException {
@@ -31,6 +33,14 @@ public class ImageGenerationController {
             imageRequest.getWidth(),
             imageRequest.getHeight()
     );
-    response.sendRedirect(imageResponse.getResult().getOutput().getUrl());
+
+    String base64 = imageResponse.getResult().getOutput().getB64Json();
+
+    byte[] imageBytes = Base64.getDecoder().decode(base64);
+
+    response.setContentType("image/png");
+    response.setHeader("Content-Disposition", "inline; filename=\"image.png\"");
+    response.getOutputStream().write(imageBytes);
+    response.getOutputStream().flush();
   }
 }

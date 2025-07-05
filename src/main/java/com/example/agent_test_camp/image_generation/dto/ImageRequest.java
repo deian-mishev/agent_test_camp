@@ -19,7 +19,7 @@ public class ImageRequest {
   private Integer height;
 
   @NotBlank(message = "Prompt is required")
-  @Size(max = 200, message = "Prompt must be less than 200 characters")
+  @Size(max = 1000, message = "Prompt must be less than 1000 characters")
   private String prompt;
 
   @NotNull(message = "Quality of the image is required")
