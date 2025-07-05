@@ -1,11 +1,13 @@
 package com.example.agent_test_camp.config;
 
+import com.example.agent_test_camp.ml_agent_interact.configuration.ConnectInterceptor;
 import com.example.agent_test_camp.ml_agent_interact.configuration.ProjectProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.Customizer;
@@ -30,6 +32,11 @@ import java.util.stream.Collectors;
 public class MLAgentInteractConfig implements WebSocketMessageBrokerConfigurer {
 
   @Autowired private ProjectProperties projectProperties;
+
+  @Override
+  public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(new ConnectInterceptor());
+  }
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {

@@ -25,10 +25,11 @@ public class FlaskSocketIOClient {
     this.onEpisodeEnd = onEpisodeEnd;
   }
 
-  public synchronized void connect() throws URISyntaxException {
+  public synchronized void connect(String env, String player) throws URISyntaxException {
     IO.Options options = new IO.Options();
     options.forceNew = true;
     options.reconnection = true;
+    options.query = "env=" + env + "&ai_player=" + player;
 
     socket = IO.socket(agentProperties.getUrl(), options);
 
