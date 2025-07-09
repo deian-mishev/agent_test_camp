@@ -34,3 +34,4 @@ build/
 
 ### Data ###
 **/src/main/resources/trace/**
+**/src/main/resources/models/**
