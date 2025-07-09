@@ -1,5 +1,6 @@
 model-paths:
   object-recognition: 'models/object_recognition'
+  object-recognition-v2: 'models/object_recognition_v2'
 spring:
   servlet:
     multipart:

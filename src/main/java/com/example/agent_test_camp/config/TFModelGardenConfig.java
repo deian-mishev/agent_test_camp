@@ -1,6 +1,9 @@
 package com.example.agent_test_camp.config;
 
 import com.example.agent_test_camp.model_garden.configuration.GardenProperties;
+import com.example.agent_test_camp.model_garden.configuration.ModelResource;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 @Configuration
 @Profile("model_garden")
@@ -23,10 +27,14 @@ import java.nio.file.StandardCopyOption;
 public class TFModelGardenConfig {
 
   @Bean
-  public SavedModelBundle mobilenetModel(GardenProperties properties)
+  public ModelResource mobilenetModel(GardenProperties properties)
       throws IOException, URISyntaxException {
     Path modelPath = extractModelFromResources(properties.getObjectRecognition());
-    return SavedModelBundle.load(modelPath.toString(), "serve");
+    SavedModelBundle savedModelBundle = SavedModelBundle.load(modelPath.toString(), "serve");
+    ObjectMapper mapper = new ObjectMapper();
+    Path labelsPath = modelPath.resolve("labels.json");
+    List<String> labels = mapper.readValue(labelsPath.toFile(), new TypeReference<>(){});
+    return new ModelResource(savedModelBundle, labels);
   }
 
   private Path extractModelFromResources(String resourceDirName)

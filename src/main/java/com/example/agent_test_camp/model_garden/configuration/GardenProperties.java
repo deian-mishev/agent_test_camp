@@ -9,6 +9,16 @@ public class GardenProperties {
 
   private String objectRecognition;
 
+  private String objectRecognitionV2;
+
+  public void setObjectRecognitionV2(String objectRecognitionV2) {
+    this.objectRecognitionV2 = objectRecognitionV2;
+  }
+
+  public String getObjectRecognitionV2() {
+    return objectRecognitionV2;
+  }
+
   public String getObjectRecognition() {
     return objectRecognition;
   }
