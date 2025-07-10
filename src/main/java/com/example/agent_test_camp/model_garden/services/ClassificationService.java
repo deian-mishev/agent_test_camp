@@ -60,8 +60,23 @@ public class ClassificationService {
       FloatNdArray slice = result.slice(Indices.at(0));
       slice.copyTo(NdArrays.vectorOf(predictions));
 
-      return predictions;
+      return softmax(predictions);
     }
+  }
+
+  private float[] softmax(float[] logits) {
+    float max = Float.NEGATIVE_INFINITY;
+    for (float logit : logits) max = Math.max(max, logit);
+    float sum = 0.0f;
+    float[] exps = new float[logits.length];
+    for (int i = 0; i < logits.length; i++) {
+      exps[i] = (float) Math.exp(logits[i] - max);
+      sum += exps[i];
+    }
+    for (int i = 0; i < logits.length; i++) {
+      exps[i] /= sum;
+    }
+    return exps;
   }
 
   public Map<String, Float> getTopPredictions(float[] predictions, List<String> labels, int topK) {

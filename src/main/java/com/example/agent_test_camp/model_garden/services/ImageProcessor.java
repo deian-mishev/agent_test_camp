@@ -6,14 +6,32 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 @Service
 public class ImageProcessor {
+  public BufferedImage resizeWithPadding(BufferedImage input, int targetWidth, int targetHeight) {
+    float scale = Math.min(
+            (float) targetWidth / input.getWidth(),
+            (float) targetHeight / input.getHeight()
+    );
 
-  public float[][][][] preprocess(BufferedImage image, int height, int width) {
-    BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-    Graphics2D g = resized.createGraphics();
-    g.drawImage(image, 0, 0, width, height, null);
+    int newWidth = Math.round(input.getWidth() * scale);
+    int newHeight = Math.round(input.getHeight() * scale);
+
+    BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+    Graphics2D g = resizedImage.createGraphics();
+
+    g.setColor(Color.BLACK);
+    g.fillRect(0, 0, targetWidth, targetHeight);
+
+    int x = (targetWidth - newWidth) / 2;
+    int y = (targetHeight - newHeight) / 2;
+    g.drawImage(input, x, y, newWidth, newHeight, null);
     g.dispose();
 
-    return normalizePixels(image, height, width);
+    return resizedImage;
+  }
+
+  public float[][][][] preprocess(BufferedImage image, int height, int width) {
+    BufferedImage padded = resizeWithPadding(image, 224, 224);
+    return normalizePixels(padded, height, width);
   }
 
   public float[][][][] preprocess(BufferedImage image) {

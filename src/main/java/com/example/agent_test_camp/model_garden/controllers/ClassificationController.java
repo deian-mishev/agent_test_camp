@@ -27,12 +27,13 @@ public class ClassificationController {
   }
 
   @PostMapping(value = "/classify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<?> classifyImage(@RequestParam("image") MultipartFile imageFile)
+  public ResponseEntity<?> classifyImage(@RequestParam("image") MultipartFile imageFile,
+                                         @RequestParam("topK") Integer topK)
       throws IOException {
     BufferedImage bufferedImage = ImageIO.read(imageFile.getInputStream());
 //    float[][][][] rawBytes = imageProcessor.preprocess(bufferedImage);
     float[][][][] rawBytes = imageProcessor.preprocess(bufferedImage, 224, 224);
-    Map<String, Float> result = classificationService.classify(rawBytes, 5);
+    Map<String, Float> result = classificationService.classify(rawBytes, topK);
     return ResponseEntity.ok(result);
   }
 }
