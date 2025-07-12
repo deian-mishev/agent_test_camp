@@ -26,7 +26,7 @@ public class PageController {
 
   @GetMapping("/images/{name}")
   public ResponseEntity<byte[]> getImage(@PathVariable String name) throws IOException {
-    ClassPathResource imgFile = new ClassPathResource("templates/images/" + name);
+    ClassPathResource imgFile = new ClassPathResource("templates/ml_agent_interact/images/" + name);
     byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
 
     HttpHeaders headers = new HttpHeaders();
@@ -37,7 +37,7 @@ public class PageController {
 
   @GetMapping(value = "/js/agent-client.js", produces = "application/javascript")
   public ResponseEntity<String> serveAgentClientJs() throws IOException {
-    ClassPathResource jsFile = new ClassPathResource("templates/js/agent-client.js");
+    ClassPathResource jsFile = new ClassPathResource("templates/ml_agent_interact/js/agent-client.js");
     String jsContent = StreamUtils.copyToString(jsFile.getInputStream(), StandardCharsets.UTF_8);
     return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_TYPE, "application/javascript")
@@ -48,6 +48,6 @@ public class PageController {
   public String index(Model model) {
     model.addAttribute("width", projectProperties.getAgent().getWidth());
     model.addAttribute("height", projectProperties.getAgent().getHeight());
-    return "index";
+    return "/ml_agent_interact/index";
   }
 }
