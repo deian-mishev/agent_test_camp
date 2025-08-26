@@ -9,7 +9,6 @@ import org.tensorflow.ndarray.Shape;
 import org.tensorflow.ndarray.index.Indices;
 import org.tensorflow.types.TFloat32;
 
-import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.List;
 import java.util.LinkedHashMap;
