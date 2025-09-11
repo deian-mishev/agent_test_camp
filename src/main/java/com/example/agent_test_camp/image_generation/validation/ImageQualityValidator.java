@@ -1,7 +1,6 @@
 package com.example.agent_test_camp.image_generation.validation;
 
 import com.example.agent_test_camp.image_generation.configuration.ImageProperties;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
