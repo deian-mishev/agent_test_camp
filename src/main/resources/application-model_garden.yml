@@ -1,0 +1,8 @@
+model-paths:
+  object-recognition: 'models/object_recognition'
+  object-recognition-v2: 'models/object_recognition_v2'
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB

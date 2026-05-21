@@ -1,7 +1,5 @@
 package com.example.agent_test_camp.image_generation.services;
 
-import com.example.agent_test_camp.image_generation.dto.ImageRefRequest;
-import com.example.agent_test_camp.image_generation.dto.ImageRefResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
@@ -24,7 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -33,55 +31,39 @@ public class ImageGeneration {
     private final OpenAiImageModel openAiImageModel;
     private final RestClient restClient;
     private final String apiKey;
+    private final String imageModel;
 
     public ImageGeneration(OpenAiImageModel openAiImageModel,
                            RestClient.Builder restClientBuilder,
-                           @Value("${spring.ai.openai.api-key}") String apiKey) {
+                           @Value("${spring.ai.openai.api-key}") String apiKey,
+                           @Value("${spring.ai.openai.image.options.model}") String imageModel) {
         this.openAiImageModel = openAiImageModel;
         this.restClient = restClientBuilder.baseUrl("https://api.openai.com").build();
         this.apiKey = apiKey;
+        this.imageModel = imageModel;
     }
 
-    public ImageResponse generateImage(String prompt, int width, int height) {
-        return openAiImageModel.call(
+    public byte[] generateImage(String prompt, int width, int height) {
+        ImageResponse imageResponse = openAiImageModel.call(
             new ImagePrompt(prompt, OpenAiImageOptions.builder().height(height).width(width).build()));
+        return Base64.getDecoder().decode(imageResponse.getResult().getOutput().getB64Json());
     }
 
-    public ImageRefResponse generateImagesByRef(List<MultipartFile> refs, ImageRefRequest req) throws IOException {
-        List<BufferedImage> srcImages = new ArrayList<>(refs.size());
-        for (MultipartFile ref : refs) {
-            if (ref.isEmpty()) continue;
-            BufferedImage img = ImageIO.read(new ByteArrayInputStream(ref.getBytes()));
-            if (img == null) throw new IOException("Cannot read image '" + ref.getOriginalFilename() + "' — unsupported format");
-            srcImages.add(img);
-        }
-        if (srcImages.isEmpty()) throw new IOException("No valid images provided");
-
-        // Canvas = max width × max height across all uploads; each image is scaled to fit
-        // with transparent padding so no image is distorted
-        int targetW = srcImages.stream().mapToInt(BufferedImage::getWidth).max().orElseThrow();
-        int targetH = srcImages.stream().mapToInt(BufferedImage::getHeight).max().orElseThrow();
+    public byte[] generateImageByRef(MultipartFile ref, String prompt) throws IOException {
+        if (ref.isEmpty()) throw new IOException("No image provided");
 
         HttpHeaders pngHeaders = new HttpHeaders();
         pngHeaders.setContentType(MediaType.IMAGE_PNG);
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        for (int i = 0; i < srcImages.size(); i++) {
-            byte[] normalized = padToCanvas(srcImages.get(i), targetW, targetH);
-            final String filename = "image_" + i + ".png";
-            body.add("image[]", new HttpEntity<>(new ByteArrayResource(normalized) {
-                @Override
-                public String getFilename() { return filename; }
-            }, pngHeaders));
-        }
-
-        body.add("model", req.getModel());
-        body.add("prompt", req.getPrompt());
-        body.add("n", String.valueOf(req.getN()));
+        body.add("image[]", new HttpEntity<>(new ByteArrayResource(toPng(ref.getBytes())) {
+            @Override
+            public String getFilename() { return "image.png"; }
+        }, pngHeaders));
+        body.add("model", imageModel);
+        body.add("prompt", prompt);
+        body.add("n", "1");
         body.add("size", "auto");
-        if (req.getQuality() != null)        body.add("quality", req.getQuality());
-        if (req.getUser() != null)           body.add("user", req.getUser());
-        if (req.getResponseFormat() != null) body.add("response_format", req.getResponseFormat());
 
         OpenAiEditResponse response = restClient.post()
                 .uri("/v1/images/edits")
@@ -91,23 +73,16 @@ public class ImageGeneration {
                 .retrieve()
                 .body(OpenAiEditResponse.class);
 
-        List<String> images = response.data().stream()
-                .map(d -> d.b64Json() != null ? d.b64Json() : d.url())
-                .toList();
-
-        return new ImageRefResponse(images);
+        return Base64.getDecoder().decode(response.data().get(0).b64Json());
     }
 
-    // Place the image at native resolution, centered on the canvas — no scaling, no resampling
-    private byte[] padToCanvas(BufferedImage src, int targetW, int targetH) throws IOException {
-        int offsetX = (targetW - src.getWidth()) / 2;
-        int offsetY = (targetH - src.getHeight()) / 2;
-
-        BufferedImage canvas = new BufferedImage(targetW, targetH, BufferedImage.TYPE_INT_ARGB);
+    private byte[] toPng(byte[] bytes) throws IOException {
+        BufferedImage src = ImageIO.read(new ByteArrayInputStream(bytes));
+        if (src == null) throw new IOException("Cannot read image — unsupported format");
+        BufferedImage canvas = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = canvas.createGraphics();
-        g.drawImage(src, offsetX, offsetY, null);
+        g.drawImage(src, 0, 0, null);
         g.dispose();
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(canvas, "png", out);
         return out.toByteArray();
@@ -115,5 +90,5 @@ public class ImageGeneration {
 
     private record OpenAiEditResponse(List<ImageData> data) {}
 
-    private record ImageData(@JsonProperty("b64_json") String b64Json, String url) {}
+    private record ImageData(@JsonProperty("b64_json") String b64Json) {}
 }

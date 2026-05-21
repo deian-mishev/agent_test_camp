@@ -78,7 +78,7 @@ public class AudioService {
               transcriptionOptions);
 
       AudioTranscriptionResponse response = transcriptionModel.call(transcriptionRequest);
-      lastRecordedMessage = response.getResult().getOutput();
+      lastRecordedMessage = response.getResult().getOutput().replaceAll("[\\r\\n]+", "");
       return CompletableFuture.completedFuture(lastRecordedMessage);
     } catch (Exception e) {
       recording = false;

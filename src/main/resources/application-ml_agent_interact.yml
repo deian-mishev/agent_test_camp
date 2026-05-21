@@ -1,0 +1,9 @@
+project:
+  properties:
+    agent:
+      url: ${AGENT_URL}
+      width: ${AGENT_VID_WIDTH}
+      height: ${AGENT_VID_HEIGHT}
+    users:
+      - name: ${PLAYER_NAME}
+        password: ${PLAYER_PASS}

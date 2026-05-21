@@ -40,22 +40,19 @@ public class TranslationService {
         PromptTemplate.builder()
             .template(
                 """
-                    Respond clearly with the direct translation of: "{message}" in "{language}"
-                    , disregarding the meaning.
-                    If you don't know the language just say: "I don't know this language!"
-                    If the message is not provided then say: "This message is empty!"
+                    Respond clearly with the direct translation of this message: '{message}' in '{language}' language, disregarding the meaning of the message.
+                    If you don't know the language of the original message just say: I don't know the language of this message!.
+                    If you don't know the language you are supposed to translate to, just say: I don't know this message!.
+                    If the message is not provided then say: This message is empty!'
                     """)
             .build();
   }
 
   public void translate(String textResponse, TranslationRequest translationRequest) {
-    final String textTranslation =
-        translationClient
-            .prompt(
-                translationTempate.render(
-                    Map.of("language", translationRequest.getLanguage(), "message", textResponse)))
-            .call()
-            .content();
+    final String prompt =
+        translationTempate.render(
+            Map.of("language", translationRequest.getLanguage(), "message", textResponse));
+    final String textTranslation = translationClient.prompt(prompt).call().content();
     translationRequest.setTextTranslation(textTranslation);
     SpeechPrompt speechPrompt = new SpeechPrompt(textTranslation);
     translationRequest.setAudioTranslation(speechModel.call(speechPrompt).getResult().getOutput());
