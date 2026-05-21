@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "Agent Test Camp",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Image Generation",
+      "description": "Run with profile: image_generation",
+      "item": [
+        {
+          "name": "Generate Image",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/images/generate?prompt=a sunset over the ocean&width=1024&height=1024&quality=hd&style=vivid",
+              "host": ["{{baseUrl}}"],
+              "path": ["images", "generate"],
+              "query": [
+                { "key": "prompt",  "value": "a sunset over the ocean" },
+                { "key": "width",   "value": "1024" },
+                { "key": "height",  "value": "1024" },
+                { "key": "quality", "value": "hd" },
+                { "key": "style",   "value": "vivid" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate by Reference",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/images/generate-by-ref",
+              "host": ["{{baseUrl}}"],
+              "path": ["images", "generate-by-ref"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": [],
+                  "description": "First reference image (repeat this field for additional images)"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": [],
+                  "description": "Second reference image (optional)"
+                },
+                {
+                  "key": "prompt",
+                  "value": "Merge these reference images into a single cohesive scene rendered in the style of a cinematic oil painting, preserving the subjects and composition from each",
+                  "type": "text"
+                },
+                {
+                  "key": "model",
+                  "value": "gpt-image-1",
+                  "type": "text"
+                },
+                {
+                  "key": "n",
+                  "value": "2",
+                  "type": "text",
+                  "description": "Number of images to generate (min 1)"
+                },
+                {
+                  "key": "quality",
+                  "value": "high",
+                  "type": "text",
+                  "description": "gpt-image-1: low | medium | high | auto"
+                },
+                {
+                  "key": "user",
+                  "value": "user-abc123",
+                  "type": "text",
+                  "description": "Optional end-user identifier"
+                },
+                {
+                  "key": "responseFormat",
+                  "value": "",
+                  "type": "text",
+                  "description": "Only relevant for dall-e-2: url | b64_json. Leave blank for gpt-image-1.",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Loan Chat",
+      "description": "Run with profile: loan_chat",
+      "item": [
+        {
+          "name": "Chat with Loan Assistant",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/loans?message=What are the details of my current loans?",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans"],
+              "query": [
+                {
+                  "key": "message",
+                  "value": "What are the details of my current loans?",
+                  "description": "Max 200 characters. Session-aware — each request continues the conversation."
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recipes Chat",
+      "description": "Run with profile: recipes_chat",
+      "item": [
+        {
+          "name": "Chef — Suggest Recipe (stateful conversation)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/recipes/chef/suggest-recipe?message=Suggest a recipe for dinner.",
+              "host": ["{{baseUrl}}"],
+              "path": ["recipes", "chef", "suggest-recipe"],
+              "query": [
+                {
+                  "key": "message",
+                  "value": "Suggest a recipe for dinner.",
+                  "description": "Defaults to 'Suggest a recipe for dinner.' Conversation history is kept in memory."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest Recipe — Plain",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/recipes/suggest-recipe?output=PLAIN&ingredients=chicken, garlic, lemon",
+              "host": ["{{baseUrl}}"],
+              "path": ["recipes", "suggest-recipe"],
+              "query": [
+                { "key": "ingredients", "value": "chicken, garlic, lemon", "description": "Required" },
+                { "key": "output",      "value": "PLAIN",                  "description": "PLAIN | LIST | JSON" },
+                { "key": "amount",      "value": "1",                      "description": "Number of recipes (default 10)", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest Recipe — List",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/recipes/suggest-recipe?output=LIST&amount=3&ingredients=pasta, tomato, basil",
+              "host": ["{{baseUrl}}"],
+              "path": ["recipes", "suggest-recipe"],
+              "query": [
+                { "key": "ingredients", "value": "pasta, tomato, basil" },
+                { "key": "output",      "value": "LIST" },
+                { "key": "amount",      "value": "3" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest Recipe — JSON",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/recipes/suggest-recipe?output=JSON&amount=2&ingredients=salmon, dill, capers",
+              "host": ["{{baseUrl}}"],
+              "path": ["recipes", "suggest-recipe"],
+              "query": [
+                { "key": "ingredients", "value": "salmon, dill, capers" },
+                { "key": "output",      "value": "JSON" },
+                { "key": "amount",      "value": "2" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Translator",
+      "description": "Run with profile: translator. Requires a microphone.",
+      "item": [
+        {
+          "name": "Record and Translate",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/translation/translate?durationInSeconds=5&language=Spanish",
+              "host": ["{{baseUrl}}"],
+              "path": ["translation", "translate"],
+              "query": [
+                {
+                  "key": "durationInSeconds",
+                  "value": "5",
+                  "description": "Recording duration in seconds (1–10, default 10)"
+                },
+                {
+                  "key": "language",
+                  "value": "Spanish",
+                  "description": "Required. Target language for translation."
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record Audio",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/translation/record?durationInSeconds=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["translation", "record"],
+              "query": [
+                {
+                  "key": "durationInSeconds",
+                  "value": "5",
+                  "description": "Recording duration in seconds (1–10, default 10)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Translate Last Recording",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/translation/translate-last?language=French",
+              "host": ["{{baseUrl}}"],
+              "path": ["translation", "translate-last"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "French",
+                  "description": "Required. Translates the last recorded audio. Returns audio/wav."
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

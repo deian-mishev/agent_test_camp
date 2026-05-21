@@ -2,6 +2,7 @@ package com.example.agent_test_camp.config;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,6 +30,21 @@ public class GlobalExceptionHandler {
     String body = "Validation failed:\n" + errors;
     return ResponseEntity.badRequest().body(body);
   }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<String> handleBindException(BindException ex) {
+        String errors =
+            ex.getBindingResult().getFieldErrors().stream()
+                .sorted(
+                    (e1, e2) -> {
+                        boolean e1Required = e1.getDefaultMessage().toLowerCase().contains("required");
+                        boolean e2Required = e2.getDefaultMessage().toLowerCase().contains("required");
+                        return Boolean.compare(!e1Required, !e2Required);
+                    })
+                .map(error -> "- " + error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("\n"));
+        return ResponseEntity.badRequest().body("Validation failed:\n" + errors);
+    }
 
     @ExceptionHandler(ExecutionException.class)
     public ResponseEntity<String> handleExecutionException(ExecutionException ex) {
